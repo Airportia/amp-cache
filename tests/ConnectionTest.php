@@ -6,14 +6,11 @@
 
 namespace DigitalBrands\Tests\Amp;
 
+use DigitalBrands\Amp\Connection;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
-use DigitalBrands\Amp\Connection;
-use DigitalBrands\Amp\ConnectionException;
 use PHPUnit\Framework\TestCase;
 
 class ConnectionTest extends TestCase
@@ -33,21 +30,11 @@ class ConnectionTest extends TestCase
         }
     }
 
-    public function testBadResponse()
-    {
-        $connection = $this->createClient([new BadResponseException("sss", new Request('get', 'test'))]);
-
-        $this->expectException(ConnectionException::class);
-        $connection->send('aaaa');
-    }
-
-    public function testBadResponseBody()
+    public function testSend()
     {
         $connection = $this->createClient([new Response(200, [], 'NotOk')]);
 
-        $this->expectException(ConnectionException::class);
-        $this->expectExceptionMessage('Cache update failed.');
-        $connection->send('aaa');
+        $this->assertEquals('NotOk', $connection->send('aaa'));
     }
 
     /**

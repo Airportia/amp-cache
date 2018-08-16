@@ -41,8 +41,14 @@ class AmpCache
         $this->validateUrl($ampUrl);
         $this->log("Updating AMP cache for $ampUrl\n");
         $urls = $this->getCacheUrls($ampUrl, $contentType);
+
         foreach ($urls as $url) {
-            $this->connection->send($url);
+            $response = $this->connection->send($url);
+            if ($response !== 'OK') {
+                $message = "Failed to update $ampUrl cache: $response";
+                $this->log($message);
+                throw new AmpCacheException($message);
+            }
         }
     }
 

@@ -35,14 +35,9 @@ class Connection
 
     public function send($url)
     {
-        try {
-            $response = $this->client->get($url);
-        } catch (\Exception $e) {
-            $this->throwException('Failed to send update command', $e);
-        }
-        if ((string)$response->getBody() !== 'OK') {
-            $this->throwException('Cache update failed. Bad server response: ' . $response->getBody());
-        }
+        $response = $this->client->get($url, ['http_errors' => false]);
+
+        return (string)$response->getBody();
     }
 
     private function throwException($message, $prev = null)

@@ -8,7 +8,7 @@
     "AMP cache",
     "Update AMP content"
   ],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "authors": [
     {
       "name": "Andrew Ivchenkov",
@@ -32,6 +32,7 @@
     "guzzlehttp/guzzle": "^6.3"
   },
   "require-dev": {
-    "phpunit/phpunit": "^5"
+    "phpunit/phpunit": "^5",
+    "monolog/monolog": "^1.23"
   }
 }
