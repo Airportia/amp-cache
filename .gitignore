@@ -1,0 +1,6 @@
+.idea
+vendor
+composer.lock
+tests/private-key.pem
+.php_cs.cache
+.DS_STORE
