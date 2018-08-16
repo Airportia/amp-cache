@@ -1,4 +1,4 @@
-
+[![Build Status](https://travis-ci.org/DigitalBrands/amp-cache.svg?branch=master)](https://travis-ci.org/DigitalBrands/amp-cache)
 ## Amp Update Cache library
 
 Sometimes you need to tell Google to update cache of your AMP page.
@@ -10,7 +10,7 @@ This library is an easy tool to do it. All you need is Private Api Key and url y
 
 ```php
 <?php
-$ampCache = new \Michalas\Amp\AmpCache('<YourPrivateApiKey>');
+$ampCache = new \DigitalBrands\Amp\AmpCache('<YourPrivateApiKey>');
 $ampCache->update('<YourAMPUrl>');
 ```
 
