@@ -1,5 +1,5 @@
 {
-  "name": "michalas/amp-cache",
+  "name": "digitalbrands/amp-cache",
   "description": "A tool to update AMP cache",
   "minimum-stability": "stable",
   "type": "library",
