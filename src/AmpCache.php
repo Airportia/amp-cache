@@ -7,6 +7,7 @@
 namespace DigitalBrands\Amp;
 
 use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 
 class AmpCache
 {
@@ -30,7 +31,9 @@ class AmpCache
     public function __construct($privateKey, LoggerInterface $logger = null)
     {
         if (!$this->privateKey = openssl_pkey_get_private($privateKey)) {
-            throw new \InvalidArgumentException('Invalid private key');
+            $message = 'Invalid private key';
+            $this->log($message, LogLevel::ERROR);
+            throw new \InvalidArgumentException($message);
         }
         $this->connection = new Connection();
         $this->logger = $logger;
@@ -46,7 +49,7 @@ class AmpCache
             $response = $this->connection->send($url);
             if ($response !== 'OK') {
                 $message = "Failed to update $ampUrl cache: $response";
-                $this->log($message);
+                $this->log($message, LogLevel::ERROR);
                 throw new AmpCacheException($message);
             }
         }
@@ -112,13 +115,13 @@ class AmpCache
         return [$scheme, $host, $url];
     }
 
-    private function log($string)
+    private function log($string, $level = LogLevel::DEBUG)
     {
         if ($this->logger === null) {
             return;
         }
 
-        $this->logger->debug($string);
+        $this->logger->log($level, $string);
     }
 
     private function validateUrl($ampUrl)
@@ -129,7 +132,9 @@ class AmpCache
         ]);
 
         if (!$isValid) {
-            throw new \InvalidArgumentException('Invalid url. Url must contains scheme and host parts');
+            $message = 'Invalid url. Url must contains scheme and host parts';
+            $this->log($message, LogLevel::ERROR);
+            throw new \InvalidArgumentException($message);
         }
     }
 }
