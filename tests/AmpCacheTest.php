@@ -18,7 +18,11 @@ class AmpCacheTest extends TestCase
 
     public function testWrongUrl()
     {
-        $cache = new \DigitalBrands\Amp\AmpCache(file_get_contents(__DIR__ . '/private-key.pem'));
+        $keyFile = __DIR__ . '/private-key.pem';
+        if (!is_file($keyFile)) {
+            $this->markTestSkipped('The private key file doesn\'t exist');
+        }
+        $cache = new \DigitalBrands\Amp\AmpCache(file_get_contents($keyFile));
         $this->expectException(\InvalidArgumentException::class);
         $cache->update('wwww');
     }

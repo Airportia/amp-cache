@@ -45,7 +45,7 @@ class Connection
         }
     }
 
-    private function throwException($message, \Throwable $prev = null)
+    private function throwException($message, $prev = null)
     {
         throw new ConnectionException($message, 0, $prev);
     }
