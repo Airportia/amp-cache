@@ -46,8 +46,8 @@ class AmpCache
         $urls = $this->getCacheUrls($ampUrl, $contentType);
 
         foreach ($urls as $url) {
-            $response = $this->connection->send($url);
-            if ($response !== 'OK' || $response !== 'Not Found') {
+            $response = trim($this->connection->send($url));
+            if ($response !== 'OK' && $response !== 'Not Found') {
                 $message = "Failed to update $ampUrl cache: $response";
                 $this->log($message, LogLevel::ERROR);
                 throw new AmpCacheException($message);
