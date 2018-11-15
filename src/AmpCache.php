@@ -47,7 +47,7 @@ class AmpCache
 
         foreach ($urls as $url) {
             $response = $this->connection->send($url);
-            if ($response !== 'OK') {
+            if ($response !== 'OK' || $response !== 'Not Found') {
                 $message = "Failed to update $ampUrl cache: $response";
                 $this->log($message, LogLevel::ERROR);
                 throw new AmpCacheException($message);
