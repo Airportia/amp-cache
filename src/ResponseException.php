@@ -3,13 +3,13 @@
  * Created by PhpStorm.
  * User: andrew
  * Date: 23.01.2019
- * Time: 0:00
+ * Time: 1:53
  */
 
 namespace DigitalBrands\AmpCache;
 
 
-class AmpCacheException extends \RuntimeException
+class ResponseException extends AmpCacheException
 {
 
 }

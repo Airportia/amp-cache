@@ -10,7 +10,7 @@ This library is an easy tool to do it. All you need is Private Api Key and url y
 
 ```php
 <?php
-$ampCache = new \DigitalBrands\Amp\AmpCache('<YourPrivateApiKey>');
+$ampCache = new \DigitalBrands\AmpCache\Cache::create('<YourPrivateApiKey>');
 $ampCache->update('<YourAMPUrl>');
 ```
 
