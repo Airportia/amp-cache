@@ -14,7 +14,7 @@ $ampCache = \DigitalBrands\AmpCache\Cache::create('<YourPrivateApiKey>');
 
 $ampCache->update('<YourAMPUrl>');
 //or
-$ampCache->updateBatch(['<YourAMPUrl1>', <YourAMPUrl2>])
+$ampCache->updateBatch(['<YourAMPUrl1>', '<YourAMPUrl2>'])
 ```
 
 ### Configuration
