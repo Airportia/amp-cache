@@ -12,6 +12,7 @@ namespace DigitalBrands\AmpCache;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\TransferException;
+use GuzzleHttp\Promise;
 
 class Cache
 {
@@ -44,11 +45,19 @@ class Cache
     public function update($url, $contentType = UrlConverter::CONTENT_TYPE_HTML)
     {
         $failed = [];
+
+        $promises = [];
         foreach ($this->getCacheServers() as $server) {
-            try {
-                $this->client->get($this->urlConverter->convert($url, $server, $contentType),
-                    ['timeout' => $this->config->getTimeout()]);
-            } catch (TransferException $e) {
+            $promises[$server] = $this->client->getAsync($this->urlConverter->convert($url, $server, $contentType),
+                ['timeout' => $this->config->getTimeout()]);
+        }
+
+        $results = Promise\settle($promises)->wait();
+
+        foreach ($results as $server => $result) {
+            if ($result['state'] === 'rejected') {
+                /** @var TransferException $e */
+                $e = $result['reason'];
                 $failed[] = "Failed to update $url url on $server: {$e->getMessage()}";
             }
         }
