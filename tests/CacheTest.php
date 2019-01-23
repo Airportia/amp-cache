@@ -83,11 +83,38 @@ class CacheTest extends TestCase
         $cache->update('https://example.com');
     }
 
-    private function createConfig($servers = [])
+    public function testGroupException()
+    {
+        $historyContainer = [];
+        $client = $this->createGuzzle($historyContainer, [
+            new Response(200, [], file_get_contents(__DIR__ . '/_support/cacheList.json')),
+            new Response(200),
+            new Response(500),
+            new Response(200),
+        ]);
+
+        $cache = new Cache($this->createConfig([], true), $client);
+        $cache->update('https://example.com');
+
+        $client = $this->createGuzzle($historyContainer, [
+            new Response(200, [], file_get_contents(__DIR__ . '/_support/cacheList.json')),
+            new Response(400),
+            new Response(400),
+            new Response(400),
+        ]);
+
+        $cache = new Cache($this->createConfig([], true), $client);
+
+        $this->expectException(ResponseException::class);
+        $cache->update('https://example.com');
+    }
+
+    private function createConfig($servers = [], $exceptionOnGroup = false)
     {
         $config = Config::create([
             'private_key' => file_get_contents(__DIR__ . '/_support/key.pem'),
-            'servers' => $servers
+            'servers' => $servers,
+            'exception_on_group' => $exceptionOnGroup
         ]);
 
         /** @var Config $config */

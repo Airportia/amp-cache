@@ -51,4 +51,17 @@ class ConfigTest extends TestCase
         $this->assertEquals(10, $config->getTimeout());
     }
 
+    public function testGroupUpdateFailed()
+    {
+        $config = Config::create([
+            'exception_on_group' => true
+        ]);
+
+        $this->assertEquals(true, $config->isExceptionOnGroup());
+
+        $config = Config::create([]);
+
+        $this->assertEquals(false, $config->isExceptionOnGroup());
+    }
+
 }

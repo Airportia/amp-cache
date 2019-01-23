@@ -53,10 +53,18 @@ class Cache
             }
         }
 
-        if ($failed) {
+        if ($this->shouldThrowException($failed)) {
             $message = implode(';', $failed);
             throw new ResponseException($message);
         }
+    }
+
+    private function shouldThrowException(array $failed)
+    {
+        if (!$failed) {
+            return false;
+        }
+        return $this->config->isExceptionOnGroup() && count($failed) === count($this->getCacheServers());
     }
 
     private function getCacheServers()
