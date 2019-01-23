@@ -64,6 +64,11 @@ class Cache
         if (!$failed) {
             return false;
         }
+
+        if (count($this->getCacheServers()) === 1) {
+            return true;
+        }
+
         return $this->config->isExceptionOnGroup() && count($failed) === count($this->getCacheServers());
     }
 
