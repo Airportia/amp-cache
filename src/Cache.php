@@ -36,10 +36,10 @@ class Cache
         $this->urlConverter = new UrlConverter($config->getPrivateKey());
     }
 
-    public static function create($privateKey)
+    public static function create($privateKey, array $config = [])
     {
-        $config = Config::create(['private_key' => $privateKey]);
-        return new self($config);
+        $config = array_merge($config, ['private_key' => $privateKey]);
+        return new self(Config::create($config));
     }
 
     public function update($url, $contentType = UrlConverter::CONTENT_TYPE_HTML)
