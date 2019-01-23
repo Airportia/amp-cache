@@ -16,7 +16,7 @@ use GuzzleHttp\Promise;
 
 class Cache
 {
-    const CACHE_SERVERS_URL = 'https://cdn.ampproject.org/caches.json';
+    const DELIMITER = '<::>';
 
     /** @var Config */
     private $config;
@@ -44,27 +44,31 @@ class Cache
 
     public function update($url, $contentType = UrlConverter::CONTENT_TYPE_HTML)
     {
-        $failed = [];
+        $this->updateBatch([$url], $contentType);
+    }
 
-        $promises = [];
-        foreach ($this->getCacheServers() as $server) {
-            $promises[$server] = $this->client->getAsync($this->urlConverter->convert($url, $server, $contentType),
-                ['timeout' => $this->config->getTimeout()]);
-        }
+    public function updateBatch(array $urls, $contentType = UrlConverter::CONTENT_TYPE_HTML)
+    {
+        $promises = $this->makePromises($urls, $contentType);
 
         $results = Promise\settle($promises)->wait();
 
-        foreach ($results as $server => $result) {
-            if ($result['state'] === 'rejected') {
-                /** @var TransferException $e */
-                $e = $result['reason'];
-                $failed[] = "Failed to update $url url on $server: {$e->getMessage()}";
-            }
-        }
+        $groupedResults = $this->groupResultsByUrl($results);
 
-        if ($this->shouldThrowException($failed)) {
-            $message = implode(';', $failed);
-            throw new ResponseException($message);
+        foreach ($groupedResults as $url => $result) {
+            $failed = [];
+            foreach ($result as $server => $serverResult) {
+                if ($serverResult['state'] === 'rejected') {
+                    /** @var TransferException $e */
+                    $e = $serverResult['reason'];
+                    $failed[] = "Failed to update $url url on $server: {$e->getMessage()}";
+                }
+            }
+
+            if ($this->shouldThrowException($failed)) {
+                $message = implode(';', $failed);
+                throw new ResponseException($message);
+            }
         }
     }
 
@@ -91,7 +95,8 @@ class Cache
 
         if (empty($this->servers)) {
             try {
-                $response = $this->client->get(self::CACHE_SERVERS_URL, ['timeout' => $this->config->getTimeout()]);
+                $response = $this->client->get($this->config->getCacheListUrl(),
+                    ['timeout' => $this->config->getTimeout()]);
                 $servers = \GuzzleHttp\json_decode($response->getBody(), true);
                 $this->servers = array_column($servers['caches'], 'updateCacheApiDomainSuffix');
             } catch (\Exception $e) {
@@ -100,6 +105,39 @@ class Cache
         }
 
         return $this->servers;
+    }
+
+    /**
+     * @param $results
+     * @return array
+     */
+    private function groupResultsByUrl($results)
+    {
+        $groupedResults = [];
+        foreach ($results as $index => $result) {
+            list($url, $server) = explode(self::DELIMITER, $index);
+            $groupedResults[$url][$server] = $result;
+        }
+        return $groupedResults;
+    }
+
+    /**
+     * @param array $urls
+     * @param $contentType
+     * @return array
+     */
+    private function makePromises(array $urls, $contentType)
+    {
+        $promises = [];
+
+        foreach ($urls as $url) {
+            foreach ($this->getCacheServers() as $server) {
+                $index = $url . self::DELIMITER . $server;
+                $promises[$index] = $this->client->getAsync($this->urlConverter->convert($url, $server, $contentType),
+                    ['timeout' => $this->config->getTimeout()]);
+            }
+        }
+        return $promises;
     }
 
 }
