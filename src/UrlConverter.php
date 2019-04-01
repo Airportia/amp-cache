@@ -53,7 +53,8 @@ class UrlConverter
     private function signPath($path)
     {
         if (!@openssl_sign($path, $signature, $this->privateKey, OPENSSL_ALGO_SHA256)) {
-            throw new AmpCacheException("Failed to sign the $path");
+            $error = openssl_error_string();
+            throw new AmpCacheException("Failed to sign the $path: $error");
         }
         return $this->base64encode($signature);
     }
